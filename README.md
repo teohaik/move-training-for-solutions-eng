@@ -1,8 +1,5 @@
-# POC TEMPLATE - NextJS version
+# Move training Project for new Solution Engineers
 
-This repo is a template POC, that will be used for initializing future POCs easier.
-
-- Inspired by: [POC Template](https://github.com/MystenLabs/poc-template)
 
 ### Directories structure
 
