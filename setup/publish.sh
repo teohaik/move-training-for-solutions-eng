@@ -12,7 +12,7 @@ NETWORK=http://localhost:9000
 BACKEND_API=http://localhost:3000
 FAUCET=https://localhost:9000/gas
 
-MOVE_PACKAGE_PATH=../move/poc
+MOVE_PACKAGE_PATH=../move/lesson
 
 if [ $# -ne 0 ]; then
   if [ $1 = "testnet" ]; then
@@ -29,11 +29,7 @@ fi
 
 echo "- Admin Address is: ${ADMIN_ADDRESS}"
 
-import_address=$(sui keytool import "$ADMIN_PHRASE" ed25519)
-
 switch_res=$(sui client switch --address ${ADMIN_ADDRESS})
-
-#faucet_res=$(curl --location --request POST "$FAUCET" --header 'Content-Type: application/json' --data-raw '{"FixedAmountRequest": { "recipient": '$ADMIN_ADDRESS'}}')
 
 publish_res=$(sui client publish --skip-fetch-latest-git-deps --gas-budget 2000000000 --json ${MOVE_PACKAGE_PATH})
 
@@ -52,6 +48,9 @@ PACKAGE_ID=$(echo "$publishedObjs" | jq -r '.packageId')
 
 newObjs=$(echo "$publish_res" | jq -r '.objectChanges[] | select(.type == "created")')
 
+PUBLISHER_ID=$(echo "$newObjs" | jq -r 'select (.objectType | contains("package::Publisher")).objectId')
+
+
 suffix=""
 if [ $# -eq 0 ]; then
   suffix=".localnet"
@@ -62,13 +61,9 @@ SUI_NETWORK=$NETWORK
 BACKEND_API=$BACKEND_API
 PACKAGE_ADDRESS=$PACKAGE_ID
 ADMIN_ADDRESS=$ADMIN_ADDRESS
+PUBLISHER_ID=$PUBLISHER_ID
 API_ENV
 
-cat >../app/.env$suffix<<-VITE_API_ENV
-VITE_SUI_NETWORK=$NETWORK
-NEXT_PUBLIC_PACKAGE=$PACKAGE_ID
-NEXT_BACKEND_API=$BACKEND_API
-VITE_API_ENV
 
 # commented out as the POC template does not have an api directory
 

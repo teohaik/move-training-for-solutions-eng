@@ -10,6 +10,8 @@
  - Object Display initialization
  - State mutation
  - Object Deletion and Rebate
+ - Invoke Function with TS
+ - Update Display with TS
 
 
 ### Lesson 2 (Branch 02_)
