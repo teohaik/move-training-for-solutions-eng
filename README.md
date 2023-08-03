@@ -14,10 +14,11 @@
  - Update Display with TS
 
 
-### Lesson 2 (Branch 02_)
-  - a
-  - b
-  - c
+### Lesson 2 (Branch 02-abilities-dofs-events)
+  - Object composition
+  - Object Types (Owned/Shared)
+  - Dynamic Fields
+  - Dynamic Object Fields
 
 ### Lesson 3 (Branch 03_)
 - a

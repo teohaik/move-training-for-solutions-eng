@@ -50,6 +50,8 @@ newObjs=$(echo "$publish_res" | jq -r '.objectChanges[] | select(.type == "creat
 
 PUBLISHER_ID=$(echo "$newObjs" | jq -r 'select (.objectType | contains("package::Publisher")).objectId')
 
+RIDE_STORAGE_ID=$(echo "$newObjs" | jq -r 'select (.objectType | contains("ride::RideStorage")).objectId')
+
 
 suffix=""
 if [ $# -eq 0 ]; then
@@ -62,6 +64,7 @@ BACKEND_API=$BACKEND_API
 PACKAGE_ADDRESS=$PACKAGE_ID
 ADMIN_ADDRESS=$ADMIN_ADDRESS
 PUBLISHER_ID=$PUBLISHER_ID
+RIDE_STORAGE_ID=$RIDE_STORAGE_ID
 API_ENV
 
 
