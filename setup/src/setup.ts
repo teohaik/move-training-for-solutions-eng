@@ -6,6 +6,7 @@ console.log("Connecting to SUI network: ", SUI_NETWORK);
 
 const adminSecretKey = ADMIN_SECRET_KEY;
 let privateKeyArray = Uint8Array.from(Array.from(fromB64(adminSecretKey!)));
+console.log(privateKeyArray);
 const keypair = Ed25519Keypair.fromSecretKey(privateKeyArray.slice(1));
 
 const run = async () => {
