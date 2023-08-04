@@ -44,6 +44,23 @@ module suitaxi::ride {
         initial_location: String
     }
 
+    struct RideAcceptedEvent has drop, copy {
+        ride_id: ID,
+        rider: address,
+        driver: address,
+        initial_location: String
+    }
+
+    struct RideEndedEvent has drop, copy {
+        ride_id: ID,
+        rider: address,
+        driver: address,
+        initial_location: String,
+        final_location: String,
+        distance: u64,
+        duration: u64
+    }
+
     fun init(ctx: &mut TxContext) {
         let rideStorage = RideStorage {
             id: object::new(ctx)
@@ -82,9 +99,20 @@ module suitaxi::ride {
     public fun accept_ride(ride_storage: &mut RideStorage,
                             rider: address,
                             ctx: &mut TxContext) {
-        let rideMut : &mut Ride = dof::borrow_mut(&mut ride_storage.id, rider);
-        rideMut.driver = tx_context::sender(ctx);
-        rideMut.state = RideStatusRideAccepted;
+        let ride: Ride = dof::remove(&mut ride_storage.id, rider);
+        ride.driver = tx_context::sender(ctx);
+        ride.state = RideStatusRideAccepted;
+        
+        // 1. Emit RideAcceptedEvent
+        event::emit(RideAcceptedEvent {
+            ride_id: object::id<Ride>(&ride),
+            rider: rider,
+            driver: tx_context::sender(ctx),
+            initial_location: ride.initial_location
+        });
+
+        // 2. Change key of this ride to be the driver
+        dof::add(&mut ride_storage.id, tx_context::sender(ctx), ride);
     }
 
     public fun end_ride(ride: &mut Ride, final_location:String, distance: u64, duration: u64, ctx: &mut TxContext) {  //sender = taxi driver
@@ -94,7 +122,16 @@ module suitaxi::ride {
         ride.distance = distance;
         ride.duration = duration;
         ride.state = RideStatusSuccessfullyCompleted;
+
+        // 1. Emit RideEndedEvent
+        event::emit(RideEndedEvent {
+            ride_id: object::id<Ride>(ride),
+            rider: ride.rider,
+            driver: ride.driver,
+            initial_location: ride.initial_location,
+            final_location: ride.final_location,
+            distance: ride.distance,
+            duration: ride.duration
+        });
     }
-
-
 }

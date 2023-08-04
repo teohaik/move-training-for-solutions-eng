@@ -33,3 +33,6 @@ move/lesson/build
 setup/*.env
 .publish.res.json
 .vercel
+
+# pnpm
+pnpm-lock.yaml
