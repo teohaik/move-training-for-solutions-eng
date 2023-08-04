@@ -16,7 +16,7 @@ import {
     RIDER_SECRET_KEY,
     SUI_NETWORK
 } from "./config";
-import {getCoinsOfAddress} from "./examples/getCoinsOfAddress";
+import { getCoinsOfAddress } from "./examples/getCoinsOfAddress";
 
 console.log("Connecting to SUI network: ", SUI_NETWORK);
 
@@ -75,12 +75,21 @@ async function acceptRide(event: SuiEvent) {
         const status = res?.effects?.status.status;
         if (status == "success") {
             console.log("Driver accepted ride. Ride ID = ", ride_id);
+            return res;
         }
         if (status == "failure") {
             console.log("Error = ", res?.effects);
+            return null;
         }
     });
 
+
+    if (res) {
+        console.log("Driving to destination");
+        await new Promise(r => setTimeout(r, 1000));
+        let res = await endRide();
+        console.log(res);
+    }
 
 }
 
@@ -94,9 +103,60 @@ const listenForRideRequests = async () => {
             acceptRide(event);
         }
     }).then((subscriptionId) => {
-        console.log("Subscriber subscribed. SubId = ", subscriptionId);
+        console.log("Subscriber subscribed to RideCreatedEvent. SubId = ", subscriptionId);
     });
 
 }
 
 listenForRideRequests();
+
+listenForEverything();
+
+// 1. listen every event
+async function listenForEverything() {
+    provider.subscribeEvent({
+        filter: {
+            MoveModule: { package: `${PACKAGE_ADDRESS}`, module: "ride" }
+        },
+        onMessage(event: SuiEvent) {
+            console.log("======================EVENT RECEIVED================================");
+            console.log(event);
+            console.log("==================END EVENT RECEIVED================================");
+        }
+    }).then(subId => {
+        console.log("Subscriber subscribed to ride events. SubId = ", subId);
+    });
+
+}
+
+async function endRide() {
+
+    const tx = new TransactionBlock();
+    tx.moveCall({
+        target: `${PACKAGE_ADDRESS}::ride::end_ride`,
+        arguments: [
+            tx.object(RIDE_STORAGE),
+            tx.pure("40.603675, 23.005828"),
+            tx.pure(10000),
+            tx.pure(30),
+        ]
+    });
+
+    tx.setGasBudget(1000000000);
+
+    let res = await signer.signAndExecuteTransactionBlock({
+        transactionBlock: tx,
+        requestType: "WaitForLocalExecution",
+        options: {
+            showEvents: true,
+            showEffects: true,
+            showObjectChanges: true,
+            showBalanceChanges: true,
+            showInput: true
+        }
+
+    })
+
+    return res;
+}
+

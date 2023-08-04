@@ -115,7 +115,8 @@ module suitaxi::ride {
         dof::add(&mut ride_storage.id, tx_context::sender(ctx), ride);
     }
 
-    public fun end_ride(ride: &mut Ride, final_location:String, distance: u64, duration: u64, ctx: &mut TxContext) {  //sender = taxi driver
+    public fun end_ride(ride_storage: &mut RideStorage, final_location:String, distance: u64, duration: u64, ctx: &mut TxContext) {  //sender = taxi driver
+        let ride: &mut Ride = dof::borrow_mut(&mut ride_storage.id, tx_context::sender(ctx));
         assert!(ride.state == RideStatusRideAccepted, EInvalidState);
         assert!(ride.driver == tx_context::sender(ctx), EWrongDriverForThisRide);
         ride.final_location = final_location;
