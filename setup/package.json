@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "setup": "env-cmd -f .env ts-node src/setup"
+    "setup": "env-cmd -f .env ts-node src/setup",
+    "drive": "env-cmd -f .env ts-node src/taxi_driver",
+    "ride": "env-cmd -f .env ts-node src/ride_handling"
   },
   "author": "",
   "license": "ISC",
